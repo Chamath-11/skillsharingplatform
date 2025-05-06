@@ -1,81 +1,133 @@
-import { AuthError } from '../types/auth';
-import { tokenStorage } from './tokenStorage';
+import { getToken, removeToken } from './tokenStorage';
 
-interface ApiResponse<T> {
-  data?: T;
-  error?: AuthError;
+export interface ApiResponse<T = any> {
+  data: T | null;
+  error: string | null;
+  statusCode: number;
+  validationErrors?: Record<string, string[]>;
 }
 
-interface RequestConfig extends RequestInit {
-  requiresAuth?: boolean;
+export interface ApiError {
+  message: string;
+  errors?: Record<string, string[]>;
+  status?: string;
+  statusCode?: number;
 }
 
-async function request<T>(url: string, config: RequestConfig = {}): Promise<ApiResponse<T>> {
-  const { requiresAuth = true, ...fetchConfig } = config;
-  
-  try {
-    const headers = new Headers(fetchConfig.headers);
+/**
+ * Configurable API client for making HTTP requests
+ */
+const apiClient = {
+  /**
+   * Base URL for API requests
+   */
+  baseUrl: '/api',
 
-    if (requiresAuth) {
-      const token = tokenStorage.getToken();
+  /**
+   * Makes an HTTP request to the API
+   */
+  async request<T = any>(
+    endpoint: string,
+    method: string = 'GET',
+    data: any = null,
+    includeAuth: boolean = true,
+    customHeaders: Record<string, string> = {}
+  ): Promise<ApiResponse<T>> {
+    const url = endpoint.startsWith('http') ? endpoint : `${this.baseUrl}${endpoint}`;
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      ...customHeaders
+    };
+
+    // Add auth token if available and requested
+    if (includeAuth) {
+      const token = getToken();
       if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
+        headers['Authorization'] = `Bearer ${token}`;
       }
     }
 
-    if (!headers.has('Content-Type') && !(fetchConfig.body instanceof FormData)) {
-      headers.set('Content-Type', 'application/json');
+    const config: RequestInit = { method, headers };
+
+    // Add request body for non-GET requests if data is provided
+    if (method !== 'GET' && data) {
+      config.body = JSON.stringify(data);
     }
 
-    const response = await fetch(url, {
-      ...fetchConfig,
-      headers
-    });
+    try {
+      const response = await fetch(url, config);
+      
+      // Try to parse response as JSON
+      let responseData: any = null;
+      let responseError: ApiError | null = null;
+      
+      try {
+        responseData = await response.json();
+      } catch (e) {
+        // If response is not JSON, set data to null
+        responseData = null;
+      }
 
-    const data = await response.json();
+      // Handle 401 Unauthorized (expired token)
+      if (response.status === 401 && includeAuth) {
+        removeToken();
+        
+        // Reload the page to redirect to login
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+      }
 
-    if (!response.ok) {
-      // Handle validation errors
-      if (response.status === 400 && data.subErrors) {
-        const validationError: AuthError = {
-          message: data.message,
-          field: data.subErrors[0]?.field,
+      // Format error from response
+      if (!response.ok) {
+        responseError = {
+          message: responseData?.message || responseData?.error || 'An unexpected error occurred',
+          errors: responseData?.errors || responseData?.validationErrors,
+          status: responseData?.status,
+          statusCode: response.status
         };
-        throw validationError;
       }
 
-      // Handle authentication errors
-      if (response.status === 401) {
-        tokenStorage.removeToken();
-        window.location.href = '/login';
-        throw new Error('Authentication failed');
-      }
-
-      throw new Error(data.error || data.message || 'Something went wrong');
+      return {
+        data: response.ok ? responseData : null,
+        error: responseError ? responseError.message : null,
+        statusCode: response.status,
+        validationErrors: responseError?.errors
+      };
+    } catch (error) {
+      console.error('API request failed:', error);
+      return {
+        data: null,
+        error: error instanceof Error ? error.message : 'Network error',
+        statusCode: 0
+      };
     }
+  },
 
-    return { data: data as T };
-  } catch (error) {
-    if (error instanceof Error) {
-      return { error: { message: error.message } };
-    }
-    return { error: { message: 'An unexpected error occurred' } };
+  /**
+   * Shorthand methods for common HTTP verbs
+   */
+  async get<T = any>(endpoint: string, includeAuth: boolean = true): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, 'GET', null, includeAuth);
+  },
+
+  async post<T = any>(endpoint: string, data: any, includeAuth: boolean = true): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, 'POST', data, includeAuth);
+  },
+
+  async put<T = any>(endpoint: string, data: any, includeAuth: boolean = true): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, 'PUT', data, includeAuth);
+  },
+
+  async patch<T = any>(endpoint: string, data: any, includeAuth: boolean = true): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, 'PATCH', data, includeAuth);
+  },
+
+  async delete<T = any>(endpoint: string, includeAuth: boolean = true): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, 'DELETE', null, includeAuth);
   }
-}
-
-export const apiClient = {
-  get: <T>(url: string, config?: RequestConfig) => 
-    request<T>(url, { ...config, method: 'GET' }),
-  
-  post: <T>(url: string, body: any, config?: RequestConfig) =>
-    request<T>(url, { ...config, method: 'POST', body: JSON.stringify(body) }),
-  
-  put: <T>(url: string, body: any, config?: RequestConfig) =>
-    request<T>(url, { ...config, method: 'PUT', body: JSON.stringify(body) }),
-  
-  delete: <T>(url: string, config?: RequestConfig) =>
-    request<T>(url, { ...config, method: 'DELETE' }),
-  
-  upload: <T>(url: string, formData: FormData, config?: RequestConfig) =>
-    request<T>(url, { ...config, method: 'POST', body: formData })
 };
+
+export default apiClient;
