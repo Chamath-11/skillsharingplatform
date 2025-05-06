@@ -41,21 +41,24 @@ const PlanDetailsPage = () => {
         // Mock data for demonstration
         const mockPlan: LearningPlan = {
           id: id || '1',
-          title: 'Advanced React & TypeScript',
-          description: 'Master React with TypeScript including hooks, context API, and performance optimization techniques.',
+          title: 'Advanced Cloud Architecture and DevOps Mastery',
+          description: 'Comprehensive learning path for becoming an expert in cloud architecture and DevOps practices. Focus on AWS, Kubernetes, and modern CI/CD methodologies.',
           progress: 65,
           totalMilestones: 12,
           completedMilestones: 8,
           milestones: [
-            { id: '1', title: 'TypeScript basics', isCompleted: true },
-            { id: '2', title: 'React hooks with TypeScript', isCompleted: true },
-            { id: '3', title: 'Custom hooks development', isCompleted: true },
-            { id: '4', title: 'Performance optimization', isCompleted: false },
-            { id: '5', title: 'Build a full project', isCompleted: false }
+            { id: '1', title: 'AWS Solutions Architect Professional Certification', isCompleted: true },
+            { id: '2', title: 'Implement Multi-Region High Availability Architecture', isCompleted: true },
+            { id: '3', title: 'Master Kubernetes Cluster Management', isCompleted: true },
+            { id: '4', title: 'Design GitOps Workflow with ArgoCD', isCompleted: true },
+            { id: '5', title: 'Implement Service Mesh with Istio', isCompleted: false },
+            { id: '6', title: 'Cloud Cost Optimization Strategies', isCompleted: false },
+            { id: '7', title: 'Zero-Trust Security Implementation', isCompleted: false },
+            { id: '8', title: 'Advanced Monitoring with Prometheus & Grafana', isCompleted: false }
           ],
           startDate: new Date(2024, 1, 10),
           targetDate: new Date(2024, 3, 30),
-          tags: ['React', 'TypeScript', 'Frontend']
+          tags: ['Cloud', 'AWS', 'Kubernetes', 'DevOps', 'Security']
         };
         
         setPlan(mockPlan);
