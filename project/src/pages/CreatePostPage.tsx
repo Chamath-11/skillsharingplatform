@@ -92,7 +92,14 @@ const CreatePostPage: React.FC = () => {
             />
             <div className="flex-1">
               <textarea
-                placeholder="Share your skills or learning progress..."
+                placeholder="Share your expertise, learning progress, or technical insights...
+
+Examples:
+• Document a challenging technical problem you solved
+• Share key learnings from a recent project or certification
+• Post code snippets with best practices
+• Ask for feedback on your system design
+• Share resources that helped you learn"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
