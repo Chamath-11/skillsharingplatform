@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from '@remix-run/react';
-import { format } from 'date-fns';
-import { ArrowLeft, Calendar, Clock, CheckCircle2, PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { format, differenceInDays } from 'date-fns';
+import { ArrowLeft, Calendar, Clock, CheckCircle2, PlusCircle, Edit, Trash2, AlertCircle } from 'lucide-react';
 
 interface Milestone {
   id: string;
@@ -155,6 +155,28 @@ const PlanDetailsPage = () => {
     }, 0);
   };
 
+  const getMilestoneAlert = (milestone: Milestone) => {
+    if (!milestone.commitment || milestone.isCompleted) return null;
+    
+    const daysUntilTarget = differenceInDays(plan?.targetDate || new Date(), new Date());
+    const weeklyHours = milestone.commitment.frequency === 'daily' 
+      ? milestone.commitment.hours * 7 
+      : milestone.commitment.hours;
+    
+    if (daysUntilTarget < 7 && !milestone.isCompleted) {
+      return {
+        type: 'urgent',
+        message: 'Due soon! Consider increasing time commitment'
+      };
+    } else if (weeklyHours < 2) {
+      return {
+        type: 'warning',
+        message: 'Low time commitment'
+      };
+    }
+    return null;
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -303,8 +325,23 @@ const PlanDetailsPage = () => {
                           fill={milestone.isCompleted ? 'currentColor' : 'none'}
                         />
                       </button>
-                      <span className={`ml-3 ${milestone.isCompleted ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                      <span className={`ml-3 flex items-center gap-2 ${milestone.isCompleted ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
                         {milestone.title}
+                        {milestone.commitment && (
+                          <Clock className="h-3.5 w-3.5 text-blue-500" />
+                        )}
+                        {getMilestoneAlert(milestone) && (
+                          <div className="relative group">
+                            <AlertCircle className={`h-3.5 w-3.5 ${
+                              getMilestoneAlert(milestone)?.type === 'urgent' ? 'text-red-500' : 'text-amber-500'
+                            }`} />
+                            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block">
+                              <div className="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                                {getMilestoneAlert(milestone)?.message}
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
