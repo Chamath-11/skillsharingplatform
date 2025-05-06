@@ -32,75 +32,107 @@ const LearningPlansPage: React.FC = () => {
     const mockPlans: LearningPlan[] = [
       {
         id: '1',
-        title: 'Advanced React & TypeScript',
-        description: 'Master React with TypeScript including hooks, context API, and performance optimization techniques.',
+        title: 'Cloud Architecture & DevOps Excellence',
+        description: 'Master modern cloud architecture patterns and DevOps practices. Cover AWS services, Kubernetes orchestration, CI/CD pipelines, and infrastructure as code.',
         progress: 65,
-        totalMilestones: 12,
-        completedMilestones: 8,
+        totalMilestones: 15,
+        completedMilestones: 10,
         milestones: [
-          { id: '1', title: 'TypeScript basics', isCompleted: true },
-          { id: '2', title: 'React hooks with TypeScript', isCompleted: true },
-          { id: '3', title: 'Custom hooks development', isCompleted: true },
-          { id: '4', title: 'Performance optimization', isCompleted: false },
-          { id: '5', title: 'Build a full project', isCompleted: false }
+          { id: '1', title: 'AWS basics', isCompleted: true },
+          { id: '2', title: 'Kubernetes orchestration', isCompleted: true },
+          { id: '3', title: 'CI/CD pipelines', isCompleted: true },
+          { id: '4', title: 'Infrastructure as code', isCompleted: false },
+          { id: '5', title: 'Advanced cloud patterns', isCompleted: false }
         ],
-        startDate: new Date(2024, 1, 10),
-        targetDate: new Date(2024, 3, 30),
-        tags: ['React', 'TypeScript', 'Frontend']
+        startDate: new Date(2024, 3, 1),
+        targetDate: new Date(2024, 8, 30),
+        tags: ['Cloud', 'AWS', 'Kubernetes', 'DevOps'],
+        isOwner: true
       },
       {
         id: '2',
-        title: 'Machine Learning Fundamentals',
-        description: 'Learn the core concepts of machine learning including supervised and unsupervised learning, neural networks, and practical implementations.',
-        progress: 30,
-        totalMilestones: 10,
-        completedMilestones: 3,
+        title: 'Advanced Machine Learning Engineering',
+        description: 'Deep dive into MLOps, model deployment, and production ML systems. Learn model monitoring, A/B testing, and ML infrastructure management.',
+        progress: 40,
+        totalMilestones: 12,
+        completedMilestones: 5,
         milestones: [
-          { id: '1', title: 'Linear regression', isCompleted: true },
-          { id: '2', title: 'Classification algorithms', isCompleted: true },
-          { id: '3', title: 'Neural networks basics', isCompleted: true },
-          { id: '4', title: 'Deep learning', isCompleted: false },
-          { id: '5', title: 'Model deployment', isCompleted: false }
+          { id: '1', title: 'MLOps basics', isCompleted: true },
+          { id: '2', title: 'Model deployment', isCompleted: true },
+          { id: '3', title: 'Production ML systems', isCompleted: true },
+          { id: '4', title: 'Model monitoring', isCompleted: false },
+          { id: '5', title: 'A/B testing', isCompleted: false }
         ],
-        startDate: new Date(2024, 2, 5),
-        targetDate: new Date(2024, 5, 15),
-        tags: ['ML', 'AI', 'Python', 'Data Science']
+        startDate: new Date(2024, 4, 15),
+        targetDate: new Date(2024, 9, 15),
+        tags: ['Machine Learning', 'MLOps', 'Python', 'TensorFlow'],
+        isOwner: false
       },
       {
         id: '3',
-        title: 'Digital Photography Masterclass',
-        description: 'Comprehensive guide to mastering digital photography from camera settings to advanced post-processing techniques.',
-        progress: 80,
-        totalMilestones: 15,
-        completedMilestones: 12,
+        title: 'System Design & Distributed Systems',
+        description: 'Master the principles of designing large-scale distributed systems. Topics include scalability patterns, data consistency, fault tolerance, and system optimization.',
+        progress: 85,
+        totalMilestones: 10,
+        completedMilestones: 8,
         milestones: [
-          { id: '1', title: 'Camera basics', isCompleted: true },
-          { id: '2', title: 'Composition techniques', isCompleted: true },
-          { id: '3', title: 'Lighting essentials', isCompleted: true },
-          { id: '4', title: 'Advanced editing', isCompleted: false },
-          { id: '5', title: 'Portfolio building', isCompleted: false }
+          { id: '1', title: 'Scalability patterns', isCompleted: true },
+          { id: '2', title: 'Data consistency', isCompleted: true },
+          { id: '3', title: 'Fault tolerance', isCompleted: true },
+          { id: '4', title: 'System optimization', isCompleted: false },
+          { id: '5', title: 'Advanced system design', isCompleted: false }
         ],
-        startDate: new Date(2023, 11, 15),
-        targetDate: new Date(2024, 2, 15),
-        tags: ['Photography', 'Creative', 'Editing']
+        startDate: new Date(2024, 2, 1),
+        targetDate: new Date(2024, 7, 31),
+        tags: ['System Design', 'Architecture', 'Scalability'],
+        isOwner: true
       },
       {
         id: '4',
-        title: 'Full-Stack Web Development',
-        description: 'Complete journey from frontend to backend development including React, Node.js, databases, and deployment.',
-        progress: 45,
-        totalMilestones: 20,
-        completedMilestones: 9,
+        title: 'Full-Stack Performance Engineering',
+        description: 'Comprehensive approach to optimizing application performance across the stack. Cover frontend optimization, backend efficiency, and database tuning.',
+        progress: 25,
+        totalMilestones: 14,
+        completedMilestones: 3,
         milestones: [
-          { id: '1', title: 'HTML/CSS fundamentals', isCompleted: true },
-          { id: '2', title: 'JavaScript essentials', isCompleted: true },
-          { id: '3', title: 'React basics', isCompleted: true },
-          { id: '4', title: 'Node.js & Express', isCompleted: false },
-          { id: '5', title: 'Database integration', isCompleted: false }
+          { id: '1', title: 'Frontend optimization', isCompleted: true },
+          { id: '2', title: 'Backend efficiency', isCompleted: true },
+          { id: '3', title: 'Database tuning', isCompleted: true },
+          { id: '4', title: 'Performance monitoring', isCompleted: false },
+          { id: '5', title: 'Advanced performance techniques', isCompleted: false }
         ],
-        startDate: new Date(2024, 0, 5),
-        targetDate: new Date(2024, 6, 30),
-        tags: ['Web Dev', 'React', 'Node.js', 'Full-Stack']
+        startDate: new Date(2024, 5, 1),
+        targetDate: new Date(2024, 10, 30),
+        tags: ['Performance', 'Frontend', 'Backend', 'Database'],
+        isOwner: false
+      }
+    ];
+
+    // Featured templates for creating new plans
+    const planTemplates = [
+      {
+        id: 'template1',
+        title: 'Cloud Architecture Path',
+        description: 'AWS Solutions Architect certification path with hands-on projects',
+        duration: '6 months',
+        difficulty: 'Advanced',
+        topics: ['AWS', 'Infrastructure', 'Security']
+      },
+      {
+        id: 'template2',
+        title: 'Frontend Engineering Path',
+        description: 'Modern frontend development with React, TypeScript, and performance optimization',
+        duration: '4 months',
+        difficulty: 'Intermediate',
+        topics: ['React', 'TypeScript', 'Performance']
+      },
+      {
+        id: 'template3',
+        title: 'Data Engineering Path',
+        description: 'Build scalable data pipelines and processing systems',
+        duration: '5 months',
+        difficulty: 'Advanced',
+        topics: ['Big Data', 'ETL', 'Analytics']
       }
     ];
     
