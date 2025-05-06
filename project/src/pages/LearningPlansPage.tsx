@@ -48,6 +48,7 @@ const LearningPlansPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [plans, setPlans] = useState<LearningPlan[]>([]);
+  const [sortBy, setSortBy] = useState<'progress' | 'date' | 'name'>('date');
 
   // Activity data generation
   const generateActivityData = () => {
@@ -211,7 +212,22 @@ const LearningPlansPage: React.FC = () => {
     setPlans(mockPlans);
   }, []);
   
-  const filteredPlans = plans.filter(plan => {
+  const getSortedPlans = (plans: LearningPlan[]) => {
+    return [...plans].sort((a, b) => {
+      switch (sortBy) {
+        case 'progress':
+          return b.progress - a.progress;
+        case 'date':
+          return b.startDate.getTime() - a.startDate.getTime();
+        case 'name':
+          return a.title.localeCompare(b.title);
+        default:
+          return 0;
+      }
+    });
+  };
+
+  const filteredPlans = getSortedPlans(plans.filter(plan => {
     const matchesSearch = 
       plan.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
       plan.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -220,7 +236,7 @@ const LearningPlansPage: React.FC = () => {
     const matchesTag = !selectedTag || plan.tags.includes(selectedTag);
     
     return matchesSearch && matchesTag;
-  });
+  }));
 
   const availableTags = getAllTags(plans);
   
@@ -250,6 +266,32 @@ const LearningPlansPage: React.FC = () => {
         </Link>
       </div>
       
+      {/* Quick Actions Menu */}
+      <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600">Sort by:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'progress' | 'date' | 'name')}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+            >
+              <option value="date">Date Created</option>
+              <option value="progress">Progress</option>
+              <option value="name">Name</option>
+            </select>
+          </div>
+
+          <div className="flex-1" />
+          
+          <div className="flex items-center text-sm text-gray-600">
+            <span className="mr-2">Total Plans: {filteredPlans.length}</span>
+            <span className="mx-2">•</span>
+            <span>Completed: {filteredPlans.filter(p => p.progress === 100).length}</span>
+          </div>
+        </div>
+      </div>
+
       {/* Activity Graph */}
       <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
         <div className="h-64">
