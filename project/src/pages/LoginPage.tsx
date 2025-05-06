@@ -1,21 +1,47 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Lightbulb, ArrowLeft, AlertCircle, X } from 'lucide-react';
 import { useAuthContext } from '../contexts/AuthContext';
-import { LoginCredentials } from '../types/auth';
+import FormInput from '../components/common/FormInput';
+import { validationRules } from '../utils/validation';
+import useFormValidation from '../hooks/useFormValidation';
+
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
 
 const LoginPage: React.FC = () => {
   const { login, isLoading: authLoading, user, error: authError } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from || '/';
-  const [formData, setFormData] = useState<LoginCredentials>({
-    email: '',
-    password: ''
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(location.state?.message || null);
+  const [successMessage, setSuccessMessage] = React.useState<string | null>(location.state?.message || null);
+  
+  // Form validation setup
+  const {
+    values,
+    errors,
+    touched,
+    isSubmitting,
+    handleChange,
+    handleBlur,
+    handleSubmit
+  } = useFormValidation<LoginFormValues>(
+    {
+      email: '',
+      password: ''
+    },
+    {
+      email: [
+        validationRules.required('Email is required'),
+        validationRules.email('Please enter a valid email address')
+      ],
+      password: [
+        validationRules.required('Password is required')
+      ]
+    }
+  );
 
   useEffect(() => {
     if (user) {
@@ -28,25 +54,14 @@ const LoginPage: React.FC = () => {
     setSuccessMessage(null);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+  const handleLogin = async (formValues: LoginFormValues) => {
     try {
-      setIsLoading(true);
-      await login(formData);
+      await login(formValues);
+      // No need to redirect here as the useEffect will handle it when user changes
     } catch (err) {
       console.error('Login failed:', err);
-      setError(err instanceof Error ? err.message : 'Failed to login. Please try again.');
-    } finally {
-      setIsLoading(false);
+      // Auth error is handled by the auth context
     }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
   };
 
   if (authLoading) {
@@ -77,10 +92,10 @@ const LoginPage: React.FC = () => {
         </div>
         
         <div className="p-6">
-          {(error || authError?.message) && (
+          {(authError?.message) && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center text-red-600">
               <AlertCircle className="h-5 w-5 mr-2" />
-              <span className="text-sm">{error || authError?.message}</span>
+              <span className="text-sm">{authError?.message}</span>
             </div>
           )}
           
@@ -103,45 +118,46 @@ const LoginPage: React.FC = () => {
             </p>
           </div>
           
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your email"
-              />
-            </div>
+          <form onSubmit={handleSubmit(handleLogin)} className="space-y-4">
+            <FormInput
+              id="email"
+              label="Email Address"
+              type="email"
+              value={values.email}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder="Enter your email"
+              required
+              autoComplete="email"
+              errorMessage={touched.email ? errors.email : undefined}
+              validationRules={[
+                validationRules.required('Email is required'),
+                validationRules.email('Please enter a valid email address')
+              ]}
+            />
             
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your password"
-              />
-            </div>
+            <FormInput
+              id="password"
+              label="Password"
+              type="password"
+              value={values.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder="Enter your password"
+              required
+              autoComplete="current-password"
+              errorMessage={touched.password ? errors.password : undefined}
+              validationRules={[
+                validationRules.required('Password is required')
+              ]}
+            />
             
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isSubmitting || authLoading}
               className="w-full py-3 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isSubmitting || authLoading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
