@@ -1,32 +1,38 @@
-import { useState, useEffect } from 'react';
-import { Search, Plus, X } from 'lucide-react';
-import ResourceCard from '../components/resources/ResourceCard';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { Plus, X, Search } from 'lucide-react';
+import ResourceCard from '../components/resources/ResourceCard';
+import FormInput from '../components/common/FormInput';
+import { validationRules } from '../utils/validation';
+import useFormValidation from '../hooks/useFormValidation';
 
-type Resource = {
+type ResourceType = 'ARTICLE' | 'VIDEO' | 'BOOK' | 'TOOL';
+
+interface Resource {
   id: string;
   title: string;
   description: string;
   url: string;
-  resourceType: 'VIDEO' | 'ARTICLE' | 'BOOK' | 'TOOL';
+  resourceType: ResourceType;
   skillCategory: string;
+  createdAt: Date;
+  user: {
+    id: string;
+    name: string;
+  };
   likes: number;
-  createdAt: string;
-  isOwner: boolean;
-  userId: string;
-  userName: string;
-  userEmail: string;
-};
+  isLiked: boolean;
+}
 
-type ResourceFormData = {
+interface ResourceFormData {
   title: string;
   description: string;
   url: string;
-  resourceType: 'VIDEO' | 'ARTICLE' | 'BOOK' | 'TOOL';
+  resourceType: string;
   skillCategory: string;
-};
+}
 
-const ResourceLibraryPage = () => {
+const ResourceLibraryPage: React.FC = () => {
   const { currentUser } = useAuth();
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,15 +41,69 @@ const ResourceLibraryPage = () => {
   const [selectedType, setSelectedType] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState<ResourceFormData>({
-    title: '',
-    description: '',
-    url: '',
-    resourceType: 'ARTICLE',
-    skillCategory: '',
-  });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Define validation schema
+  const validationSchema = {
+    title: [
+      validationRules.required('Title is required'),
+      validationRules.minLength(3, 'Title must be at least 3 characters long'),
+      validationRules.maxLength(100, 'Title must be less than 100 characters')
+    ],
+    description: [
+      validationRules.required('Description is required'),
+      validationRules.minLength(10, 'Description must be at least 10 characters long'),
+      validationRules.maxLength(500, 'Description must be less than 500 characters')
+    ],
+    url: [
+      validationRules.required('URL is required'),
+      validationRules.url('Please enter a valid URL')
+    ],
+    resourceType: [
+      validationRules.required('Resource type is required')
+    ],
+    skillCategory: [
+      validationRules.required('Skill category is required')
+    ]
+  };
+
+  // Use our custom form validation hook
+  const {
+    values: formData,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
+    setFieldValue,
+    resetForm,
+    handleSubmit,
+    isValid,
+    validateForm
+  } = useFormValidation<ResourceFormData>(
+    {
+      title: '',
+      description: '',
+      url: '',
+      resourceType: 'ARTICLE',
+      skillCategory: '',
+    },
+    validationSchema
+  );
+
+  // Set form data when editing
+  useEffect(() => {
+    if (editingId) {
+      const resourceToEdit = resources.find(r => r.id === editingId);
+      if (resourceToEdit) {
+        setFieldValue('title', resourceToEdit.title);
+        setFieldValue('description', resourceToEdit.description);
+        setFieldValue('url', resourceToEdit.url);
+        setFieldValue('resourceType', resourceToEdit.resourceType);
+        setFieldValue('skillCategory', resourceToEdit.skillCategory);
+      }
+    }
+  }, [editingId, resources, setFieldValue]);
 
   useEffect(() => {
     fetchResources();
@@ -87,8 +147,7 @@ const ResourceLibraryPage = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (values: ResourceFormData) => {
     if (!currentUser) {
       setError('You must be logged in to submit resources');
       return;
@@ -109,7 +168,7 @@ const ResourceLibraryPage = () => {
           'Authorization': `Bearer ${currentUser.token}`,
         },
         body: JSON.stringify({
-          ...formData,
+          ...values,
           user: {
             id: currentUser.id,
             name: currentUser.name,
@@ -125,13 +184,7 @@ const ResourceLibraryPage = () => {
 
       // Reset form and refresh resources
       setShowForm(false);
-      setFormData({
-        title: '',
-        description: '',
-        url: '',
-        resourceType: 'ARTICLE',
-        skillCategory: '',
-      });
+      resetForm();
       setEditingId(null);
       await fetchResources();
     } catch (error) {
@@ -143,13 +196,6 @@ const ResourceLibraryPage = () => {
   };
 
   const handleEdit = (resource: Resource) => {
-    setFormData({
-      title: resource.title,
-      description: resource.description,
-      url: resource.url,
-      resourceType: resource.resourceType,
-      skillCategory: resource.skillCategory,
-    });
     setEditingId(resource.id);
     setShowForm(true);
   };
@@ -174,43 +220,10 @@ const ResourceLibraryPage = () => {
         await fetchResources();
       } catch (error) {
         console.error('Error deleting resource:', error);
-        setError('Failed to delete resource. Please try again.');
+        setError(typeof error === 'string' ? error : (error as Error).message);
       }
     }
   };
-
-  const handleLike = async (resourceId: string) => {
-    if (!currentUser) {
-      setError('You must be logged in to like resources');
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/resources/${resourceId}/like`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${currentUser.token}`,
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to like resource');
-      }
-
-      await fetchResources();
-    } catch (error) {
-      console.error('Error liking resource:', error);
-      setError('Failed to like resource. Please try again.');
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -234,7 +247,6 @@ const ResourceLibraryPage = () => {
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="flex-1 min-w-[300px]">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <input
               type="text"
               placeholder="Search resources..."
@@ -242,9 +254,9 @@ const ResourceLibraryPage = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
         </div>
-        
         <select
           value={selectedType}
           onChange={(e) => setSelectedType(e.target.value)}
@@ -256,7 +268,6 @@ const ResourceLibraryPage = () => {
           <option value="BOOK">Books</option>
           <option value="TOOL">Tools</option>
         </select>
-        
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
@@ -282,13 +293,7 @@ const ResourceLibraryPage = () => {
                 onClick={() => {
                   setShowForm(false);
                   setEditingId(null);
-                  setFormData({
-                    title: '',
-                    description: '',
-                    url: '',
-                    resourceType: 'ARTICLE',
-                    skillCategory: '',
-                  });
+                  resetForm();
                 }}
                 className="text-gray-400 hover:text-gray-600"
               >
@@ -296,73 +301,92 @@ const ResourceLibraryPage = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <FormInput
+                id="title"
+                label="Title"
+                value={formData.title}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="Enter resource title"
+                required
+                errorMessage={touched.title ? errors.title : undefined}
+                validationRules={validationSchema.title}
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  required
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows={3}
-                />
-              </div>
+              <FormInput
+                id="description"
+                label="Description"
+                type="textarea"
+                value={formData.description}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="Describe the resource"
+                required
+                rows={3}
+                errorMessage={touched.description ? errors.description : undefined}
+                validationRules={validationSchema.description}
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  URL
-                </label>
-                <input
-                  type="url"
-                  required
-                  value={formData.url}
-                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              <FormInput
+                id="url"
+                label="URL"
+                type="url"
+                value={formData.url}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="https://example.com"
+                required
+                errorMessage={touched.url ? errors.url : undefined}
+                validationRules={validationSchema.url}
+              />
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Type
+                    Type <span className="text-red-500">*</span>
                   </label>
                   <select
+                    id="resourceType"
+                    name="resourceType"
                     required
                     value={formData.resourceType}
-                    onChange={(e) => setFormData({ ...formData, resourceType: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={`w-full px-3 py-2 border ${
+                      errors.resourceType && touched.resourceType 
+                        ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                        : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                    } rounded-lg focus:outline-none focus:ring-2 transition-colors`}
                   >
                     <option value="VIDEO">Video</option>
                     <option value="ARTICLE">Article</option>
                     <option value="BOOK">Book</option>
                     <option value="TOOL">Tool</option>
                   </select>
+                  {errors.resourceType && touched.resourceType && (
+                    <div className="mt-1 flex items-center text-sm text-red-600">
+                      <span>{errors.resourceType}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Category
+                    Category <span className="text-red-500">*</span>
                   </label>
                   <select
+                    id="skillCategory"
+                    name="skillCategory"
                     required
                     value={formData.skillCategory}
-                    onChange={(e) => setFormData({ ...formData, skillCategory: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={`w-full px-3 py-2 border ${
+                      errors.skillCategory && touched.skillCategory 
+                        ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                        : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                    } rounded-lg focus:outline-none focus:ring-2 transition-colors`}
                   >
                     <option value="">Select a category</option>
                     <option value="Frontend">Frontend</option>
@@ -371,6 +395,11 @@ const ResourceLibraryPage = () => {
                     <option value="Mobile">Mobile</option>
                     <option value="UI/UX">UI/UX</option>
                   </select>
+                  {errors.skillCategory && touched.skillCategory && (
+                    <div className="mt-1 flex items-center text-sm text-red-600">
+                      <span>{errors.skillCategory}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -380,6 +409,7 @@ const ResourceLibraryPage = () => {
                   onClick={() => {
                     setShowForm(false);
                     setEditingId(null);
+                    resetForm();
                   }}
                   className="px-4 py-2 text-gray-600 hover:text-gray-800"
                   disabled={submitting}
@@ -389,7 +419,7 @@ const ResourceLibraryPage = () => {
                 <button
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                  disabled={submitting}
+                  disabled={submitting || !isValid}
                 >
                   {submitting ? 'Saving...' : editingId ? 'Update' : 'Add'} Resource
                 </button>
@@ -399,17 +429,39 @@ const ResourceLibraryPage = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {resources.map((resource) => (
-          <ResourceCard
-            key={resource.id}
-            resource={resource}
-            onEdit={() => handleEdit(resource)}
-            onDelete={() => handleDelete(resource.id)}
-            onLike={() => handleLike(resource.id)}
-          />
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex justify-center py-10">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+        </div>
+      ) : resources.length === 0 ? (
+        <div className="text-center py-10 border border-dashed border-gray-300 rounded-lg">
+          <p className="text-gray-500">No resources found</p>
+          {(searchQuery || selectedType || selectedCategory) && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedType('');
+                setSelectedCategory('');
+              }}
+              className="mt-2 text-blue-500 underline"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {resources.map((resource) => (
+            <ResourceCard
+              key={resource.id}
+              resource={resource}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              currentUserId={currentUser?.id}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
