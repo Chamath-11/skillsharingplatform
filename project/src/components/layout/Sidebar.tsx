@@ -25,15 +25,17 @@ const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="hidden md:block fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 pt-16 z-0">
+    <aside className="hidden md:block fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 pt-16 z-0 transition-colors duration-200">
       <div className="h-full px-3 py-4 overflow-y-auto">
         <div className="space-y-2 font-medium">
           {navItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors ${
-                isActive(item.path) ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+              className={`flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                isActive(item.path) 
+                  ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
+                  : 'text-gray-700 dark:text-gray-300'
               }`}
             >
               {item.icon}
@@ -42,10 +44,10 @@ const Sidebar: React.FC = () => {
           ))}
         </div>
         
-        <div className="mt-8 border-t border-gray-200 pt-4">
+        <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-4">
           <Link
             to="/create-post"
-            className="flex items-center p-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors"
+            className="flex items-center p-3 text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
           >
             <PlusCircle className="h-5 w-5" />
             <span className="ml-3">Create Post</span>
@@ -53,7 +55,7 @@ const Sidebar: React.FC = () => {
           
           <Link
             to="/create-plan"
-            className="flex items-center p-3 mt-2 text-white bg-teal-500 rounded-lg hover:bg-teal-600 transition-colors"
+            className="flex items-center p-3 mt-2 text-white bg-teal-500 hover:bg-teal-600 rounded-lg transition-colors"
           >
             <Lightbulb className="h-5 w-5" />
             <span className="ml-3">New Learning Plan</span>
@@ -63,7 +65,7 @@ const Sidebar: React.FC = () => {
         <div className="absolute bottom-8 left-3 right-3">
           <Link
             to="/settings"
-            className="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-700"
+            className="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
           >
             <Settings className="h-5 w-5" />
             <span className="ml-3">Settings</span>
