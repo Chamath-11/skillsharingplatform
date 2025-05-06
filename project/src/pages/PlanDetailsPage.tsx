@@ -7,6 +7,10 @@ interface Milestone {
   id: string;
   title: string;
   isCompleted: boolean;
+  commitment?: {
+    hours: number;
+    frequency: 'daily' | 'weekly';
+  };
 }
 
 interface LearningPlan {
@@ -30,6 +34,9 @@ const PlanDetailsPage = () => {
   const [error, setError] = useState('');
   const [newMilestone, setNewMilestone] = useState('');
   const [isAddingMilestone, setIsAddingMilestone] = useState(false);
+  const [editingCommitment, setEditingCommitment] = useState<string | null>(null);
+  const [commitmentHours, setCommitmentHours] = useState<number>(1);
+  const [commitmentFrequency, setCommitmentFrequency] = useState<'daily' | 'weekly'>('daily');
 
   useEffect(() => {
     const fetchPlan = async () => {
@@ -109,6 +116,29 @@ const PlanDetailsPage = () => {
 
     setNewMilestone('');
     setIsAddingMilestone(false);
+  };
+
+  const handleCommitmentUpdate = (milestoneId: string) => {
+    if (!plan) return;
+    
+    const updatedMilestones = plan.milestones.map(milestone =>
+      milestone.id === milestoneId
+        ? { 
+            ...milestone, 
+            commitment: {
+              hours: commitmentHours,
+              frequency: commitmentFrequency
+            }
+          }
+        : milestone
+    );
+    
+    setPlan({
+      ...plan,
+      milestones: updatedMilestones
+    });
+    
+    setEditingCommitment(null);
   };
 
   if (loading) {
@@ -233,32 +263,87 @@ const PlanDetailsPage = () => {
               {plan.milestones.map(milestone => (
                 <li 
                   key={milestone.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex flex-col p-3 bg-gray-50 rounded-lg"
                 >
-                  <div className="flex items-center">
-                    <button
-                      onClick={() => toggleMilestoneCompletion(milestone.id)}
-                      className={`p-1 rounded-full transition-colors ${
-                        milestone.isCompleted ? 'text-green-500 hover:text-green-600' : 'text-gray-400 hover:text-gray-500'
-                      }`}
-                    >
-                      <CheckCircle2 
-                        className="h-5 w-5"
-                        fill={milestone.isCompleted ? 'currentColor' : 'none'}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <button
+                        onClick={() => toggleMilestoneCompletion(milestone.id)}
+                        className={`p-1 rounded-full transition-colors ${
+                          milestone.isCompleted ? 'text-green-500 hover:text-green-600' : 'text-gray-400 hover:text-gray-500'
+                        }`}
+                      >
+                        <CheckCircle2 
+                          className="h-5 w-5"
+                          fill={milestone.isCompleted ? 'currentColor' : 'none'}
+                        />
+                      </button>
+                      <span className={`ml-3 ${milestone.isCompleted ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                        {milestone.title}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button 
+                        onClick={() => {
+                          if (milestone.commitment) {
+                            setCommitmentHours(milestone.commitment.hours);
+                            setCommitmentFrequency(milestone.commitment.frequency);
+                          }
+                          setEditingCommitment(milestone.id);
+                        }}
+                        className="p-1 text-gray-400 hover:text-blue-500"
+                      >
+                        <Clock className="h-4 w-4" />
+                      </button>
+                      <button className="p-1 text-gray-400 hover:text-blue-500">
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button className="p-1 text-gray-400 hover:text-red-500">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Commitment Display */}
+                  {milestone.commitment && editingCommitment !== milestone.id && (
+                    <div className="mt-2 ml-9 text-sm text-gray-500">
+                      Committed: {milestone.commitment.hours} hours {milestone.commitment.frequency}
+                    </div>
+                  )}
+
+                  {/* Commitment Edit Form */}
+                  {editingCommitment === milestone.id && (
+                    <div className="mt-2 ml-9 flex items-center gap-2">
+                      <input
+                        type="number"
+                        min="0.5"
+                        step="0.5"
+                        value={commitmentHours}
+                        onChange={(e) => setCommitmentHours(parseFloat(e.target.value))}
+                        className="w-20 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                       />
-                    </button>
-                    <span className={`ml-3 ${milestone.isCompleted ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
-                      {milestone.title}
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <button className="p-1 text-gray-400 hover:text-blue-500">
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button className="p-1 text-gray-400 hover:text-red-500">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
+                      <select
+                        value={commitmentFrequency}
+                        onChange={(e) => setCommitmentFrequency(e.target.value as 'daily' | 'weekly')}
+                        className="px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      >
+                        <option value="daily">hours daily</option>
+                        <option value="weekly">hours weekly</option>
+                      </select>
+                      <button
+                        onClick={() => handleCommitmentUpdate(milestone.id)}
+                        className="px-3 py-1 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingCommitment(null)}
+                        className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-md hover:bg-gray-200"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
