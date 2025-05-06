@@ -17,6 +17,11 @@ interface Post {
   likes: number;
   comments: number;
   isLiked: boolean;
+  commitmentGoal: number;
+  commitmentDeadline: Date;
+  commits: number;
+  isCommitted: boolean;
+  isCommitmentComplete: boolean;
 }
 
 interface Resource {

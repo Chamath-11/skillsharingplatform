@@ -1,13 +1,15 @@
 package com.skillshare.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Field;
-import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import lombok.Data;
 
 @Data
 @Document(collection = "posts")
@@ -36,6 +38,18 @@ public class Post {
     @DBRef
     private Set<User> likes = new HashSet<>();
 
+    @DBRef
+    private Set<User> commits = new HashSet<>();
+
+    @Field(name = "commitment_goal")
+    private int commitmentGoal;
+
+    @Field(name = "commitment_deadline")
+    private LocalDateTime commitmentDeadline;
+
+    @Field(name = "is_commitment_complete")
+    private boolean isCommitmentComplete = false;
+
     @Field(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -49,5 +63,18 @@ public class Post {
 
     public void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    public boolean hasUserCommitted(String userId) {
+        return commits.stream()
+            .anyMatch(commitUser -> commitUser.getId().equals(userId));
+    }
+
+    public int getCommitCount() {
+        return commits.size();
+    }
+
+    public boolean isCommitmentAchieved() {
+        return getCommitCount() >= commitmentGoal;
     }
 }

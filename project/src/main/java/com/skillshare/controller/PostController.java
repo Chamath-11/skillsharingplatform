@@ -81,4 +81,72 @@ public class PostController {
         postService.unlikePost(postId, userId);
         return ResponseEntity.ok().build();
     }
+<<<<<<< Updated upstream
+=======
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<Post>> searchPosts(
+            @RequestParam String keyword,
+            Pageable pageable) {
+        return ResponseEntity.ok(postService.searchPosts(keyword, pageable));
+    }
+
+    @GetMapping("/search/title")
+    public ResponseEntity<Page<Post>> searchByTitle(
+            @RequestParam String title,
+            Pageable pageable) {
+        return ResponseEntity.ok(postService.searchByTitle(title, pageable));
+    }
+
+    @GetMapping("/search/content")
+    public ResponseEntity<Page<Post>> searchByContent(
+            @RequestParam String content,
+            Pageable pageable) {
+        return ResponseEntity.ok(postService.searchByContent(content, pageable));
+    }
+
+    @PostMapping("/{postId}/commit")
+    public ResponseEntity<Post> commitToPost(
+            @PathVariable String postId,
+            Authentication authentication) {
+        String userId = authentication.getName();
+        try {
+            return ResponseEntity.ok(postService.commitToPost(postId, userId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/{postId}/withdraw-commitment")
+    public ResponseEntity<Post> withdrawCommitment(
+            @PathVariable String postId,
+            Authentication authentication) {
+        String userId = authentication.getName();
+        try {
+            return ResponseEntity.ok(postService.withdrawCommitment(postId, userId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/committed")
+    public ResponseEntity<Page<Post>> getCommittedPosts(
+            Pageable pageable,
+            Authentication authentication) {
+        String userId = authentication.getName();
+        User user = userService.getUserById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.ok(postService.getCommittedPosts(user, pageable));
+    }
+
+    @GetMapping("/active-commitments")
+    public ResponseEntity<Page<Post>> getActiveCommitmentPosts(Pageable pageable) {
+        return ResponseEntity.ok(postService.getActiveCommitmentPosts(pageable));
+    }
+
+    @GetMapping("/open-commitments")
+    public ResponseEntity<Page<Post>> getOpenCommitments(Pageable pageable) {
+        return ResponseEntity.ok(postService.getOpenCommitments(pageable));
+    }
+>>>>>>> Stashed changes
 }
