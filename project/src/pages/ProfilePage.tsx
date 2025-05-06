@@ -73,20 +73,20 @@ const ProfilePage: React.FC = () => {
     // Mock profile data
     const mockProfile: Profile = {
       id: userId || '1',
-      name: 'John Doe',
-      username: 'johndoe',
-      bio: 'Software developer passionate about learning and sharing knowledge. Currently focused on web development, UI/UX, and machine learning.',
+      name: 'Dr. James Wilson',
+      username: 'jwilson',
+      bio: 'Senior Software Architect with 12+ years of experience. Specializing in distributed systems and cloud architecture. Currently leading technical workshops on microservices and cloud-native development. Active contributor to open-source projects.',
       profileImage: 'https://randomuser.me/api/portraits/men/32.jpg',
-      coverImage: 'https://images.pexels.com/photos/346529/pexels-photo-346529.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+      coverImage: 'https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
       location: 'San Francisco, CA',
-      occupation: 'Frontend Developer',
-      website: 'johndoe.com',
+      occupation: 'Senior Software Architect @ TechCorp',
+      website: 'jameswilson.dev',
       joinDate: new Date(2024, 0, 15),
       stats: {
-        posts: 42,
-        plans: 8,
-        followers: 256,
-        following: 184
+        posts: 89,
+        plans: 12,
+        followers: 1420,
+        following: 384
       },
       isFollowing: false
     };
@@ -99,25 +99,41 @@ const ProfilePage: React.FC = () => {
       {
         id: '1',
         userId: userId || '1',
-        userName: 'John Doe',
+        userName: 'Dr. James Wilson',
         userImage: 'https://randomuser.me/api/portraits/men/32.jpg',
-        content: 'Just completed this React tutorial series! Really helped me understand hooks and context API better. What are your favorite React learning resources?',
-        images: ['https://images.pexels.com/photos/11035471/pexels-photo-11035471.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'],
+        content: `Published my research paper on "Optimizing Microservices Performance in Large-Scale Distributed Systems" 📚
+
+Key findings:
+• Service mesh implementation reduced latency by 40%
+• Custom load balancing algorithm improved throughput by 25%
+• New caching strategy reduced database load by 60%
+
+Full paper available at: arxiv.org/papers/2025/microservices-opt
+#SystemDesign #Microservices #Performance`,
+        images: ['https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'],
         createdAt: new Date(Date.now() - 2 * 3600000),
-        likes: 18,
-        comments: 4,
+        likes: 342,
+        comments: 56,
         isLiked: false
       },
       {
         id: '2',
         userId: userId || '1',
-        userName: 'John Doe',
+        userName: 'Dr. James Wilson',
         userImage: 'https://randomuser.me/api/portraits/men/32.jpg',
-        content: 'Made significant progress on my machine learning course today. Finished the section on neural networks and started working on my first classification model!',
+        content: `Just wrapped up a technical workshop series on "Building Resilient Cloud-Native Applications" at @TechCorp! 🚀
+
+Topics covered:
+• Kubernetes deployment strategies
+• Circuit breaker patterns
+• Distributed tracing
+• Chaos engineering practices
+
+Slides and demo code available on my GitHub. Let me know if you have any questions!`,
         images: [],
         createdAt: new Date(Date.now() - 24 * 3600000),
-        likes: 35,
-        comments: 7,
+        likes: 289,
+        comments: 41,
         isLiked: true
       }
     ];
@@ -128,39 +144,39 @@ const ProfilePage: React.FC = () => {
     const mockPlans: LearningPlan[] = [
       {
         id: '1',
-        title: 'Advanced React & TypeScript',
-        description: 'Master React with TypeScript including hooks, context API, and performance optimization techniques.',
-        progress: 65,
+        title: 'Advanced Cloud Architecture Mastery',
+        description: 'Comprehensive study plan covering advanced cloud architecture patterns, focusing on AWS, Azure, and GCP. Includes hands-on projects and certifications.',
+        progress: 75,
         totalMilestones: 12,
-        completedMilestones: 8,
+        completedMilestones: 9,
         milestones: [
-          { id: '1', title: 'TypeScript basics', isCompleted: true },
-          { id: '2', title: 'React hooks with TypeScript', isCompleted: true },
-          { id: '3', title: 'Custom hooks development', isCompleted: true },
-          { id: '4', title: 'Performance optimization', isCompleted: false },
-          { id: '5', title: 'Build a full project', isCompleted: false }
+          { id: '1', title: 'AWS Solutions Architect Professional Certification', isCompleted: true },
+          { id: '2', title: 'Multi-Cloud Architecture Patterns', isCompleted: true },
+          { id: '3', title: 'Serverless Architecture Implementation', isCompleted: true },
+          { id: '4', title: 'Cloud Security Best Practices', isCompleted: false },
+          { id: '5', title: 'Cost Optimization Strategies', isCompleted: false }
         ],
         startDate: new Date(2024, 1, 10),
-        targetDate: new Date(2024, 3, 30),
-        tags: ['React', 'TypeScript', 'Frontend']
+        targetDate: new Date(2024, 6, 30),
+        tags: ['Cloud', 'AWS', 'Azure', 'Architecture']
       },
       {
         id: '2',
-        title: 'Machine Learning Fundamentals',
-        description: 'Learn the core concepts of machine learning including supervised and unsupervised learning, neural networks, and practical implementations.',
-        progress: 30,
+        title: 'Distributed Systems Engineering',
+        description: 'Deep dive into distributed systems design and implementation, focusing on scalability, reliability, and performance optimization.',
+        progress: 40,
         totalMilestones: 10,
-        completedMilestones: 3,
+        completedMilestones: 4,
         milestones: [
-          { id: '1', title: 'Linear regression', isCompleted: true },
-          { id: '2', title: 'Classification algorithms', isCompleted: true },
-          { id: '3', title: 'Neural networks basics', isCompleted: true },
-          { id: '4', title: 'Deep learning', isCompleted: false },
-          { id: '5', title: 'Model deployment', isCompleted: false }
+          { id: '1', title: 'Consensus Algorithms', isCompleted: true },
+          { id: '2', title: 'Distributed Caching', isCompleted: true },
+          { id: '3', title: 'Message Queue Systems', isCompleted: true },
+          { id: '4', title: 'Distributed Tracing', isCompleted: false },
+          { id: '5', title: 'Service Mesh Implementation', isCompleted: false }
         ],
-        startDate: new Date(2024, 2, 5),
-        targetDate: new Date(2024, 5, 15),
-        tags: ['ML', 'AI', 'Python', 'Data Science']
+        startDate: new Date(2024, 3, 5),
+        targetDate: new Date(2024, 8, 15),
+        tags: ['Distributed Systems', 'System Design', 'Performance']
       }
     ];
     
