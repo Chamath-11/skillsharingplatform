@@ -34,24 +34,26 @@ const PlanDetailsPage = () => {
   useEffect(() => {
     const fetchPlan = async () => {
       try {
-        // This would be replaced with actual API call
-        // const response = await fetch(`/api/learning-plans/${id}`);
-        // const data = await response.json();
-        
-        // Mock data for demonstration
         const mockPlan: LearningPlan = {
           id: id || '1',
           title: 'Advanced React & TypeScript',
           description: 'Master React with TypeScript including hooks, context API, and performance optimization techniques.',
-          progress: 65,
+          progress: 92,
           totalMilestones: 12,
-          completedMilestones: 8,
+          completedMilestones: 11,
           milestones: [
             { id: '1', title: 'TypeScript basics', isCompleted: true },
             { id: '2', title: 'React hooks with TypeScript', isCompleted: true },
             { id: '3', title: 'Custom hooks development', isCompleted: true },
-            { id: '4', title: 'Performance optimization', isCompleted: false },
-            { id: '5', title: 'Build a full project', isCompleted: false }
+            { id: '4', title: 'Performance optimization', isCompleted: true },
+            { id: '5', title: 'State management patterns', isCompleted: true },
+            { id: '6', title: 'Advanced component patterns', isCompleted: true },
+            { id: '7', title: 'Testing strategies', isCompleted: true },
+            { id: '8', title: 'Code splitting & lazy loading', isCompleted: true },
+            { id: '9', title: 'Authentication & authorization', isCompleted: true },
+            { id: '10', title: 'API integration patterns', isCompleted: true },
+            { id: '11', title: 'Deployment & CI/CD', isCompleted: true },
+            { id: '12', title: 'Final project implementation', isCompleted: false }
           ],
           startDate: new Date(2024, 1, 10),
           targetDate: new Date(2024, 3, 30),
