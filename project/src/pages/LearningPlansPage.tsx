@@ -25,7 +25,17 @@ interface LearningPlan {
 const LearningPlansPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('my-plans');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTag, setSelectedTag] = useState('');
   const [plans, setPlans] = useState<LearningPlan[]>([]);
+
+  // Extract unique tags from all plans
+  const getAllTags = (plans: LearningPlan[]) => {
+    const tagSet = new Set<string>();
+    plans.forEach(plan => {
+      plan.tags.forEach(tag => tagSet.add(tag));
+    });
+    return Array.from(tagSet);
+  };
   
   useEffect(() => {
     // Mock plans data
@@ -107,16 +117,32 @@ const LearningPlansPage: React.FC = () => {
     setPlans(mockPlans);
   }, []);
   
-  const filteredPlans = plans.filter(plan => 
-    plan.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    plan.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    plan.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredPlans = plans.filter(plan => {
+    const matchesSearch = 
+      plan.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      plan.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      plan.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesTag = !selectedTag || plan.tags.includes(selectedTag);
+    
+    return matchesSearch && matchesTag;
+  });
+
+  const availableTags = getAllTags(plans);
   
   return (
     <div className="pb-10">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Learning Plans</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Learning Plans</h1>
+          {(searchTerm || selectedTag) && (
+            <p className="text-sm text-gray-500 mt-1">
+              Showing {filteredPlans.length} {filteredPlans.length === 1 ? 'plan' : 'plans'}
+              {searchTerm && ` matching "${searchTerm}"`}
+              {selectedTag && ` tagged with "${selectedTag}"`}
+            </p>
+          )}
+        </div>
         <Link 
           to="/create-plan"
           className="flex items-center px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors font-medium"
@@ -127,7 +153,7 @@ const LearningPlansPage: React.FC = () => {
       </div>
       
       {/* Search and Filter */}
-      <div className="mb-6">
+      <div className="mb-6 space-y-4">
         <div className="relative">
           <input
             type="text"
@@ -138,6 +164,35 @@ const LearningPlansPage: React.FC = () => {
           />
           <Search className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
         </div>
+
+        {/* Tags Filter */}
+        {availableTags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setSelectedTag('')}
+              className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
+                !selectedTag 
+                  ? 'bg-teal-500 text-white' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              All Tags
+            </button>
+            {availableTags.map(tag => (
+              <button
+                key={tag}
+                onClick={() => setSelectedTag(tag === selectedTag ? '' : tag)}
+                className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
+                  tag === selectedTag
+                    ? 'bg-teal-500 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       
       {/* Tabs */}
