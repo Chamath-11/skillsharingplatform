@@ -40,6 +40,53 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
 
+  const mockComments = [
+    {
+      id: '1',
+      userId: '1',
+      userName: 'Dr. Elena Martinez',
+      userImage: 'https://randomuser.me/api/portraits/women/42.jpg',
+      content: 'Great insights on service mesh implementation! Have you considered using Istio's traffic management features for implementing your canary deployment strategy? We've seen significant improvements in our rollout reliability using weighted routing.',
+      timestamp: new Date(Date.now() - 45 * 60000),
+      likes: 12,
+      isLiked: false,
+      replies: [
+        {
+          id: '1-1',
+          userId: '2',
+          userName: 'Prof. Michael Roberts',
+          userImage: 'https://randomuser.me/api/portraits/men/32.jpg',
+          content: 'Excellent point about Istio! We've also implemented circuit breakers and retry policies using Istio's fault injection capabilities. It's been crucial for maintaining system stability during partial outages.',
+          timestamp: new Date(Date.now() - 30 * 60000),
+          likes: 8,
+          isLiked: false
+        }
+      ]
+    },
+    {
+      id: '2',
+      userId: '3',
+      userName: 'Sarah Chen',
+      userImage: 'https://randomuser.me/api/portraits/women/45.jpg',
+      content: 'Your approach to monitoring mesh-level metrics is solid. We've integrated similar patterns with Prometheus and Grafana for observability. Would you mind sharing more details about your custom dashboards for latency tracking?',
+      timestamp: new Date(Date.now() - 2 * 3600000),
+      likes: 15,
+      isLiked: true,
+      replies: []
+    },
+    {
+      id: '3',
+      userId: '4',
+      userName: 'David Park',
+      userImage: 'https://randomuser.me/api/portraits/men/46.jpg',
+      content: 'This architecture aligns well with the distributed tracing patterns we\'ve implemented. Have you explored using OpenTelemetry for end-to-end observability? It\'s been game-changing for our microservices debugging workflow.',
+      timestamp: new Date(Date.now() - 4 * 3600000),
+      likes: 10,
+      isLiked: false,
+      replies: []
+    }
+  ];
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentText.trim() || !currentUser) return;

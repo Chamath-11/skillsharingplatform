@@ -4,6 +4,54 @@ import { formatDistanceToNow } from 'date-fns';
 const NotificationsPage = () => {
   const { notifications, markAsRead, markAllAsRead } = useNotifications();
 
+  const mockNotifications = [
+    {
+      id: '1',
+      type: 'MILESTONE_COMPLETED',
+      title: 'AWS Solutions Architect Certification Milestone Completed',
+      content: 'Congratulations! You\'ve completed the AWS Solutions Architect Professional certification milestone in your Cloud Architecture learning plan.',
+      timestamp: new Date(Date.now() - 30 * 60000),
+      isRead: false,
+      link: '/plans/1'
+    },
+    {
+      id: '2',
+      type: 'RESOURCE_SHARED',
+      title: 'New Resource Shared: System Design Interview Guide',
+      content: 'Dr. Elena Martinez shared a comprehensive guide on approaching system design interviews with scalable architecture patterns.',
+      timestamp: new Date(Date.now() - 2 * 3600000),
+      isRead: false,
+      link: '/resources/2'
+    },
+    {
+      id: '3',
+      type: 'PLAN_MILESTONE_DUE',
+      title: 'Upcoming Milestone Due',
+      content: 'The "Implement Service Mesh with Istio" milestone in your Cloud Architecture & DevOps Excellence plan is due in 2 days.',
+      timestamp: new Date(Date.now() - 12 * 3600000),
+      isRead: true,
+      link: '/plans/1'
+    },
+    {
+      id: '4',
+      type: 'POST_COMMENT',
+      title: 'New Comment on Your Post',
+      content: 'Prof. Michael Roberts commented on your post about microservices architecture patterns: "Great insights on using service mesh for resilience..."',
+      timestamp: new Date(Date.now() - 24 * 3600000),
+      isRead: true,
+      link: '/posts/1'
+    },
+    {
+      id: '5',
+      type: 'LEARNING_ACHIEVEMENT',
+      title: 'Learning Streak Achievement',
+      content: 'You\'ve maintained a 30-day learning streak! Keep up the great work on your professional development journey.',
+      timestamp: new Date(Date.now() - 48 * 3600000),
+      isRead: true,
+      link: '/profile'
+    }
+  ];
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
