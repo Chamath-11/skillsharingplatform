@@ -46,7 +46,66 @@ const ResourceLibraryPage = () => {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchResources();
+    const mockResources: Resource[] = [
+      {
+        id: '1',
+        title: 'Advanced System Design Patterns in Distributed Systems',
+        description: 'A comprehensive guide to implementing scalable distributed systems. Covers consensus algorithms, distributed transactions, and fault tolerance strategies.',
+        url: 'https://example.com/system-design-patterns',
+        resourceType: 'ARTICLE',
+        skillCategory: 'System Design',
+        likes: 856,
+        createdAt: '2025-04-01T10:00:00Z',
+        isOwner: false,
+        userId: '1',
+        userName: 'Dr. Sarah Chen',
+        userEmail: 'sarah.chen@techcorp.com'
+      },
+      {
+        id: '2',
+        title: 'Machine Learning Engineering Best Practices',
+        description: 'Essential practices for deploying ML models in production. Learn about model monitoring, A/B testing, and performance optimization techniques.',
+        url: 'https://example.com/ml-engineering',
+        resourceType: 'VIDEO',
+        skillCategory: 'Machine Learning',
+        likes: 723,
+        createdAt: '2025-04-02T15:30:00Z',
+        isOwner: true,
+        userId: '2',
+        userName: 'Prof. Alex Kumar',
+        userEmail: 'alex.kumar@ailab.com'
+      },
+      {
+        id: '3',
+        title: 'Cloud-Native Application Security Guide',
+        description: 'Deep dive into securing cloud-native applications. Topics include container security, service mesh authentication, and zero-trust architecture.',
+        url: 'https://example.com/cloud-security',
+        resourceType: 'BOOK',
+        skillCategory: 'Security',
+        likes: 645,
+        createdAt: '2025-04-03T09:15:00Z',
+        isOwner: false,
+        userId: '3',
+        userName: 'Emma Thompson',
+        userEmail: 'emma.t@securityfirm.com'
+      },
+      {
+        id: '4',
+        title: 'Modern Frontend Performance Optimization',
+        description: 'Advanced techniques for optimizing web application performance. Covers bundle optimization, lazy loading, and modern rendering patterns.',
+        url: 'https://example.com/frontend-perf',
+        resourceType: 'TOOL',
+        skillCategory: 'Frontend',
+        likes: 589,
+        createdAt: '2025-04-04T14:20:00Z',
+        isOwner: false,
+        userId: '4',
+        userName: 'David Park',
+        userEmail: 'david.park@webperf.com'
+      }
+    ];
+    
+    setResources(mockResources);
   }, [searchQuery, selectedType, selectedCategory]);
 
   const fetchResources = async () => {
