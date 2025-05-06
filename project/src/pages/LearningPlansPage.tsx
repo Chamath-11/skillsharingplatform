@@ -28,6 +28,10 @@ interface Milestone {
   id: string;
   title: string;
   isCompleted: boolean;
+  commitment?: {
+    frequency: 'daily' | 'weekly';
+    hours: number;
+  };
 }
 
 interface LearningPlan {
@@ -48,7 +52,7 @@ const LearningPlansPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [plans, setPlans] = useState<LearningPlan[]>([]);
-  const [sortBy, setSortBy] = useState<'progress' | 'date' | 'name'>('date');
+  const [sortBy, setSortBy] = useState<'total-commitment' | 'date' | 'name'>('total-commitment');
 
   // Activity data generation
   const generateActivityData = () => {
@@ -143,11 +147,11 @@ const LearningPlansPage: React.FC = () => {
         totalMilestones: 12,
         completedMilestones: 8,
         milestones: [
-          { id: '1', title: 'TypeScript basics', isCompleted: true },
-          { id: '2', title: 'React hooks with TypeScript', isCompleted: true },
-          { id: '3', title: 'Custom hooks development', isCompleted: true },
-          { id: '4', title: 'Performance optimization', isCompleted: false },
-          { id: '5', title: 'Build a full project', isCompleted: false }
+          { id: '1', title: 'TypeScript basics', isCompleted: true, commitment: { frequency: 'daily', hours: 1 } },
+          { id: '2', title: 'React hooks with TypeScript', isCompleted: true, commitment: { frequency: 'daily', hours: 1 } },
+          { id: '3', title: 'Custom hooks development', isCompleted: true, commitment: { frequency: 'daily', hours: 1 } },
+          { id: '4', title: 'Performance optimization', isCompleted: false, commitment: { frequency: 'weekly', hours: 2 } },
+          { id: '5', title: 'Build a full project', isCompleted: false, commitment: { frequency: 'weekly', hours: 3 } }
         ],
         startDate: new Date(2024, 1, 10),
         targetDate: new Date(2024, 3, 30),
@@ -161,11 +165,11 @@ const LearningPlansPage: React.FC = () => {
         totalMilestones: 10,
         completedMilestones: 3,
         milestones: [
-          { id: '1', title: 'Linear regression', isCompleted: true },
-          { id: '2', title: 'Classification algorithms', isCompleted: true },
-          { id: '3', title: 'Neural networks basics', isCompleted: true },
-          { id: '4', title: 'Deep learning', isCompleted: false },
-          { id: '5', title: 'Model deployment', isCompleted: false }
+          { id: '1', title: 'Linear regression', isCompleted: true, commitment: { frequency: 'daily', hours: 1 } },
+          { id: '2', title: 'Classification algorithms', isCompleted: true, commitment: { frequency: 'daily', hours: 1 } },
+          { id: '3', title: 'Neural networks basics', isCompleted: true, commitment: { frequency: 'daily', hours: 1 } },
+          { id: '4', title: 'Deep learning', isCompleted: false, commitment: { frequency: 'weekly', hours: 2 } },
+          { id: '5', title: 'Model deployment', isCompleted: false, commitment: { frequency: 'weekly', hours: 3 } }
         ],
         startDate: new Date(2024, 2, 5),
         targetDate: new Date(2024, 5, 15),
@@ -179,11 +183,11 @@ const LearningPlansPage: React.FC = () => {
         totalMilestones: 15,
         completedMilestones: 12,
         milestones: [
-          { id: '1', title: 'Camera basics', isCompleted: true },
-          { id: '2', title: 'Composition techniques', isCompleted: true },
-          { id: '3', title: 'Lighting essentials', isCompleted: true },
-          { id: '4', title: 'Advanced editing', isCompleted: false },
-          { id: '5', title: 'Portfolio building', isCompleted: false }
+          { id: '1', title: 'Camera basics', isCompleted: true, commitment: { frequency: 'daily', hours: 1 } },
+          { id: '2', title: 'Composition techniques', isCompleted: true, commitment: { frequency: 'daily', hours: 1 } },
+          { id: '3', title: 'Lighting essentials', isCompleted: true, commitment: { frequency: 'daily', hours: 1 } },
+          { id: '4', title: 'Advanced editing', isCompleted: false, commitment: { frequency: 'weekly', hours: 2 } },
+          { id: '5', title: 'Portfolio building', isCompleted: false, commitment: { frequency: 'weekly', hours: 3 } }
         ],
         startDate: new Date(2023, 11, 15),
         targetDate: new Date(2024, 2, 15),
@@ -197,11 +201,11 @@ const LearningPlansPage: React.FC = () => {
         totalMilestones: 20,
         completedMilestones: 9,
         milestones: [
-          { id: '1', title: 'HTML/CSS fundamentals', isCompleted: true },
-          { id: '2', title: 'JavaScript essentials', isCompleted: true },
-          { id: '3', title: 'React basics', isCompleted: true },
-          { id: '4', title: 'Node.js & Express', isCompleted: false },
-          { id: '5', title: 'Database integration', isCompleted: false }
+          { id: '1', title: 'HTML/CSS fundamentals', isCompleted: true, commitment: { frequency: 'daily', hours: 1 } },
+          { id: '2', title: 'JavaScript essentials', isCompleted: true, commitment: { frequency: 'daily', hours: 1 } },
+          { id: '3', title: 'React basics', isCompleted: true, commitment: { frequency: 'daily', hours: 1 } },
+          { id: '4', title: 'Node.js & Express', isCompleted: false, commitment: { frequency: 'weekly', hours: 2 } },
+          { id: '5', title: 'Database integration', isCompleted: false, commitment: { frequency: 'weekly', hours: 3 } }
         ],
         startDate: new Date(2024, 0, 5),
         targetDate: new Date(2024, 6, 30),
@@ -212,11 +216,20 @@ const LearningPlansPage: React.FC = () => {
     setPlans(mockPlans);
   }, []);
   
+  const calculateTotalWeeklyCommitment = (plan: LearningPlan) => {
+    return plan.milestones.reduce((total, milestone) => {
+      if (!milestone.commitment) return total;
+      return total + (milestone.commitment.frequency === 'daily' 
+        ? milestone.commitment.hours * 7 
+        : milestone.commitment.hours);
+    }, 0);
+  };
+
   const getSortedPlans = (plans: LearningPlan[]) => {
     return [...plans].sort((a, b) => {
       switch (sortBy) {
-        case 'progress':
-          return b.progress - a.progress;
+        case 'total-commitment':
+          return calculateTotalWeeklyCommitment(b) - calculateTotalWeeklyCommitment(a);
         case 'date':
           return b.startDate.getTime() - a.startDate.getTime();
         case 'name':
@@ -273,11 +286,11 @@ const LearningPlansPage: React.FC = () => {
             <span className="text-sm text-gray-600">Sort by:</span>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'progress' | 'date' | 'name')}
+              onChange={(e) => setSortBy(e.target.value as 'total-commitment' | 'date' | 'name')}
               className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
+              <option value="total-commitment">Time Commitment</option>
               <option value="date">Date Created</option>
-              <option value="progress">Progress</option>
               <option value="name">Name</option>
             </select>
           </div>
@@ -285,9 +298,13 @@ const LearningPlansPage: React.FC = () => {
           <div className="flex-1" />
           
           <div className="flex items-center text-sm text-gray-600">
-            <span className="mr-2">Total Plans: {filteredPlans.length}</span>
+            <span className="mr-2">Total Weekly Hours: {
+              filteredPlans.reduce((total, plan) => total + calculateTotalWeeklyCommitment(plan), 0).toFixed(1)
+            }</span>
             <span className="mx-2">•</span>
-            <span>Completed: {filteredPlans.filter(p => p.progress === 100).length}</span>
+            <span>Plans with Commitments: {
+              filteredPlans.filter(p => p.milestones.some(m => m.commitment)).length
+            }</span>
           </div>
         </div>
       </div>
