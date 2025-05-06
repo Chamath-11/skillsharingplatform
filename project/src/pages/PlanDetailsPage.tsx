@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from '@remix-run/react';
 import { format } from 'date-fns';
 import { ArrowLeft, Calendar, Clock, CheckCircle2, PlusCircle, Edit, Trash2 } from 'lucide-react';
 
@@ -27,7 +27,7 @@ interface LearningPlan {
 }
 
 const PlanDetailsPage = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [plan, setPlan] = useState<LearningPlan | null>(null);
   const [loading, setLoading] = useState(true);
@@ -141,6 +141,20 @@ const PlanDetailsPage = () => {
     setEditingCommitment(null);
   };
 
+  const calculateTotalWeeklyCommitment = (): number => {
+    if (!plan) return 0;
+    
+    return plan.milestones.reduce((total, milestone) => {
+      if (!milestone.commitment) return total;
+      
+      if (milestone.commitment.frequency === 'daily') {
+        return total + (milestone.commitment.hours * 7);
+      } else {
+        return total + milestone.commitment.hours;
+      }
+    }, 0);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -206,6 +220,17 @@ const PlanDetailsPage = () => {
                 className="bg-teal-500 h-2.5 rounded-full transition-all duration-300"
                 style={{ width: `${plan.progress}%` }}
               ></div>
+            </div>
+          </div>
+
+          {/* Time Commitment Summary */}
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+            <h3 className="text-sm font-semibold text-blue-900 mb-2">Time Commitment</h3>
+            <div className="flex items-center">
+              <Clock className="h-5 w-5 text-blue-500 mr-2" />
+              <span className="text-blue-900">
+                Total weekly commitment: {calculateTotalWeeklyCommitment().toFixed(1)} hours
+              </span>
             </div>
           </div>
 
