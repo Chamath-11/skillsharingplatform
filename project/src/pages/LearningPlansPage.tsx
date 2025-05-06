@@ -116,7 +116,15 @@ const LearningPlansPage: React.FC = () => {
   return (
     <div className="pb-10">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Learning Plans</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Learning Plans</h1>
+          {searchTerm && (
+            <p className="text-sm text-gray-500 mt-1">
+              Showing {filteredPlans.length} {filteredPlans.length === 1 ? 'plan' : 'plans'}
+              {searchTerm && ` matching "${searchTerm}"`}
+            </p>
+          )}
+        </div>
         <Link 
           to="/create-plan"
           className="flex items-center px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors font-medium"
