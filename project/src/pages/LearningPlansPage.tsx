@@ -2,6 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import LearningPlanCard from '../components/plans/LearningPlanCard';
 import { Plus, TrendingUp, BookOpen, Search } from 'lucide-react';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface Milestone {
   id: string;
@@ -27,6 +48,79 @@ const LearningPlansPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [plans, setPlans] = useState<LearningPlan[]>([]);
+
+  // Activity data generation
+  const generateActivityData = () => {
+    const today = new Date();
+    const labels = Array.from({ length: 30 }, (_, i) => {
+      const date = new Date();
+      date.setDate(today.getDate() - (29 - i));
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+
+    const data = Array(30).fill(0);
+    plans.forEach((plan: LearningPlan) => {
+      plan.milestones.forEach((milestone: Milestone) => {
+        if (milestone.isCompleted) {
+          const randomDay = Math.floor(Math.random() * 30);
+          data[randomDay] += 1;
+        }
+      });
+    });
+
+    return { labels, data };
+  };
+
+  const activityData = generateActivityData();
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false
+      },
+      title: {
+        display: true,
+        text: 'Learning Activity',
+        color: '#374151',
+        font: {
+          size: 16,
+          weight: 'bold' as const // Type assertion for font weight
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        }
+      }
+    }
+  };
+
+  const chartData = {
+    labels: activityData.labels,
+    datasets: [
+      {
+        data: activityData.data,
+        borderColor: '#14b8a6',
+        backgroundColor: 'rgba(20, 184, 166, 0.1)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: '#14b8a6',
+        pointBorderColor: '#fff',
+        pointHoverRadius: 6,
+      }
+    ]
+  };
 
   // Extract unique tags from all plans
   const getAllTags = (plans: LearningPlan[]) => {
@@ -130,6 +224,10 @@ const LearningPlansPage: React.FC = () => {
 
   const availableTags = getAllTags(plans);
   
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
   return (
     <div className="pb-10">
       <div className="flex justify-between items-center mb-6">
@@ -152,6 +250,13 @@ const LearningPlansPage: React.FC = () => {
         </Link>
       </div>
       
+      {/* Activity Graph */}
+      <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+        <div className="h-64">
+          <Line options={chartOptions} data={chartData} />
+        </div>
+      </div>
+
       {/* Search and Filter */}
       <div className="mb-6 space-y-4">
         <div className="relative">
@@ -159,7 +264,7 @@ const LearningPlansPage: React.FC = () => {
             type="text"
             placeholder="Search for learning plans..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
             className="w-full py-3 pl-12 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
           />
           <Search className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
