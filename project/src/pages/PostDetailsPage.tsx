@@ -35,13 +35,32 @@ const PostDetailsPage = () => {
         const mockPost: Post = {
           id: id || '1',
           userId: '1',
-          userName: 'John Doe',
-          userImage: 'https://randomuser.me/api/portraits/men/1.jpg',
-          content: 'This is a detailed post about web development and best practices...',
-          images: ['https://source.unsplash.com/random/800x600'],
-          createdAt: new Date(),
-          likes: 42,
-          comments: 5,
+          userName: 'Dr. Elena Martinez',
+          userImage: 'https://randomuser.me/api/portraits/women/42.jpg',
+          content: `Excited to share my latest research on "Scaling Microservices with Service Mesh" 🚀
+
+Key findings from our production deployment:
+• 40% reduction in inter-service latency using Istio
+• 99.99% uptime achieved with custom resilience patterns
+• 60% decrease in operational overhead
+
+Full technical analysis and implementation guide:
+👉 blog.tech/scaling-microservices-2025
+
+Key takeaways for architects:
+1. Implement circuit breakers at service boundaries
+2. Use retry budgets to prevent cascading failures
+3. Monitor mesh-level metrics for system health
+4. Leverage canary deployments for risk mitigation
+
+Q&A session next week - drop your questions below! 
+#SystemArchitecture #Microservices #ServiceMesh #DevOps`,
+          images: [
+            'https://images.pexels.com/photos/7688458/pexels-photo-7688458.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+          ],
+          createdAt: new Date(Date.now() - 3600000),
+          likes: 428,
+          comments: 73,
           isLiked: false
         };
         
