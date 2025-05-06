@@ -43,42 +43,56 @@ const HomePage: React.FC = () => {
       {
         id: '1',
         userId: '2',
-        userName: 'Jane Smith',
+        userName: 'Dr. Sarah Chen',
         userImage: 'https://randomuser.me/api/portraits/women/57.jpg',
-        content: 'Just finished this JavaScript tutorial series! Here are some key takeaways for beginners:  \n\n1. Start with understanding variables, data types, and functions \n2. Practice with small projects \n3. Learn ES6+ features \n4. Explore DOM manipulation \n\nWhat are your favorite JS learning resources?',
-        images: ['https://images.pexels.com/photos/270348/pexels-photo-270348.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260'],
+        content: 'Just completed an in-depth course on Machine Learning with TensorFlow! Key takeaways for aspiring ML engineers:\n\n1. Focus on understanding the math behind algorithms\n2. Start with simple linear models before diving into deep learning\n3. Practice with real-world datasets\n4. Document your experiments meticulously\n\nHappy to share more insights and resources. What areas of ML are you focusing on?',
+        images: ['https://images.pexels.com/photos/2004161/pexels-photo-2004161.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'],
         createdAt: new Date(Date.now() - 3 * 3600000),
-        likes: 24,
-        comments: 5,
-        isLiked: false
+        likes: 245,
+        comments: 52,
+        isLiked: false,
+        commitmentGoal: 30,
+        commitmentDeadline: new Date(Date.now() + 30 * 24 * 3600000),
+        commits: 12,
+        isCommitted: true,
+        isCommitmentComplete: false
       },
       {
         id: '2',
         userId: '3',
-        userName: 'Mike Johnson',
+        userName: 'Prof. Michael Roberts',
         userImage: 'https://randomuser.me/api/portraits/men/22.jpg',
-        content: "Made these illustrations today while practicing digital art! I'm definitely seeing progress compared to last month. Still working on lighting and proportions. Any tips from experienced artists?",
+        content: "Just finished leading a workshop on cloud architecture best practices. Here's a system design diagram showcasing microservices deployment with Kubernetes and service mesh. Implemented with high availability and scalability in mind. Would love to hear your thoughts on this approach.",
         images: [
-          'https://images.pexels.com/photos/1646953/pexels-photo-1646953.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-          'https://images.pexels.com/photos/3082341/pexels-photo-3082341.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260'
+          'https://images.pexels.com/photos/1181467/pexels-photo-1181467.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
         ],
         createdAt: new Date(Date.now() - 12 * 3600000),
-        likes: 56,
-        comments: 8,
-        isLiked: true
+        likes: 189,
+        comments: 34,
+        isLiked: true,
+        commitmentGoal: 0,
+        commitmentDeadline: new Date(),
+        commits: 0,
+        isCommitted: false,
+        isCommitmentComplete: false
       },
       {
         id: '3',
         userId: '4',
-        userName: 'Sarah Williams',
+        userName: 'Emily Zhang',
         userImage: 'https://randomuser.me/api/portraits/women/31.jpg',
-        content: 'I just uploaded a quick tutorial on creating a responsive navbar with CSS Grid and Flexbox. Check it out and let me know what you think!',
-        videoUrl: 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
+        content: 'Excited to share my latest tech talk on "Building Scalable APIs with GraphQL". Covers schema design, performance optimization, and security best practices. Full presentation with code examples available in the video. Looking forward to your feedback!',
+        videoUrl: 'https://example.com/graphql-tech-talk.mp4',
         images: [],
         createdAt: new Date(Date.now() - 24 * 3600000),
-        likes: 89,
-        comments: 12,
-        isLiked: false
+        likes: 312,
+        comments: 67,
+        isLiked: false,
+        commitmentGoal: 15,
+        commitmentDeadline: new Date(Date.now() + 15 * 24 * 3600000),
+        commits: 8,
+        isCommitted: true,
+        isCommitmentComplete: false
       }
     ];
     
@@ -88,23 +102,23 @@ const HomePage: React.FC = () => {
     const mockResources: Resource[] = [
       {
         id: '1',
-        title: 'React Performance Optimization Guide',
-        description: 'A comprehensive guide to optimizing React applications for better performance and user experience.',
-        url: 'https://example.com/react-performance',
+        title: 'Enterprise Architecture Patterns in Microservices',
+        description: 'A comprehensive guide to designing and implementing scalable microservices architecture, including patterns for service discovery, resilience, and monitoring.',
+        url: 'https://example.com/microservices-architecture',
         resourceType: 'ARTICLE',
-        skillCategory: 'Frontend',
-        likes: 156,
+        skillCategory: 'System Architecture',
+        likes: 1256,
         createdAt: new Date().toISOString(),
         isOwner: false
       },
       {
         id: '2',
-        title: 'TypeScript Deep Dive',
-        description: 'Learn TypeScript from basics to advanced concepts with practical examples.',
-        url: 'https://example.com/typescript-course',
+        title: 'Advanced Data Science with Python',
+        description: 'Master data science techniques using Python, covering advanced statistical analysis, machine learning algorithms, and deep learning with practical industry examples.',
+        url: 'https://example.com/data-science-course',
         resourceType: 'VIDEO',
-        skillCategory: 'Frontend',
-        likes: 89,
+        skillCategory: 'Data Science',
+        likes: 892,
         createdAt: new Date().toISOString(),
         isOwner: false
       }
