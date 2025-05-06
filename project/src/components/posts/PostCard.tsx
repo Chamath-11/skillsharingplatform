@@ -46,7 +46,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-4 border border-gray-100 transition-all hover:shadow-md">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden mb-4 border border-gray-100 dark:border-gray-700 transition-all hover:shadow-md">
       {/* Post Header */}
       <div className="p-4 flex items-center justify-between">
         <Link to={`/profile/${post.userId}`} className="flex items-center space-x-3">
@@ -56,8 +56,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             className="h-10 w-10 rounded-full object-cover"
           />
           <div>
-            <h3 className="font-medium text-gray-900">{post.userName}</h3>
-            <div className="flex items-center text-xs text-gray-500">
+            <h3 className="font-medium text-gray-900 dark:text-white">{post.userName}</h3>
+            <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
               <Clock className="h-3 w-3 mr-1" />
               <span>{formatDistanceToNow(post.createdAt, { addSuffix: true })}</span>
             </div>
@@ -67,21 +67,21 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         <div className="relative">
           <button 
             onClick={toggleOptions}
-            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+            className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            <MoreHorizontal className="h-5 w-5 text-gray-500" />
+            <MoreHorizontal className="h-5 w-5 text-gray-500 dark:text-gray-400" />
           </button>
           
           {showOptions && (
-            <div className="absolute right-0 mt-1 w-40 bg-white rounded-md shadow-lg py-1 z-10">
-              <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            <div className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-100 dark:border-gray-700">
+              <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                 Save Post
               </button>
-              <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                 Report Post
               </button>
               {currentUser && currentUser.id === post.userId && (
-                <button className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                <button className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700">
                   Delete Post
                 </button>
               )}
@@ -92,7 +92,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       
       {/* Post Content */}
       <div className="px-4 pb-3">
-        <p className="text-gray-800 mb-3">{post.content}</p>
+        <p className="text-gray-800 dark:text-gray-200 mb-3">{post.content}</p>
       </div>
       
       {/* Post Media */}
@@ -120,11 +120,11 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       )}
       
       {/* Post Actions */}
-      <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
+      <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-gray-700">
         <div className="flex space-x-6">
           <button 
             onClick={toggleLike}
-            className={`flex items-center space-x-1 ${liked ? 'text-red-500' : 'text-gray-500'} hover:text-red-500 transition-colors`}
+            className={`flex items-center space-x-1 ${liked ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'} hover:text-red-500 transition-colors`}
           >
             <Heart className={`h-5 w-5 ${liked ? 'fill-red-500' : ''}`} />
             <span>{likesCount}</span>
@@ -132,14 +132,14 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           
           <button 
             onClick={toggleComments}
-            className="flex items-center space-x-1 text-gray-500 hover:text-blue-500 transition-colors"
+            className="flex items-center space-x-1 text-gray-500 dark:text-gray-400 hover:text-blue-500 transition-colors"
           >
             <MessageCircle className="h-5 w-5" />
             <span>{post.comments}</span>
           </button>
         </div>
         
-        <button className="flex items-center space-x-1 text-gray-500 hover:text-green-500 transition-colors">
+        <button className="flex items-center space-x-1 text-gray-500 dark:text-gray-400 hover:text-green-500 transition-colors">
           <Share2 className="h-5 w-5" />
         </button>
       </div>
