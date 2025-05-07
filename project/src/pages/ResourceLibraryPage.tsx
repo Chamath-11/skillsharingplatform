@@ -77,11 +77,48 @@ export default ResourceLibraryPage;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     if (!currentUser) {
       setError('You must be logged in to submit resources');
       return;
     }
-
+  
+    try {
+      setLoading(true);
+      setError(null);
+  
+      const response = await fetch('/api/resources', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...formData, userId: currentUser.id }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to submit resource');
+      }
+  
+      const newResource = await response.json();
+      setResources((prev) => [...prev, newResource]);
+  
+      // Reset form
+      setFormData({
+        title: '',
+        description: '',
+        url: '',
+        resourceType: 'ARTICLE',
+        skillCategory: '',
+      });
+  
+      setShowForm(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
     try {
       setSubmitting(true);
       setError(null);
