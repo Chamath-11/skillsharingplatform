@@ -3,46 +3,36 @@ import { Search, Plus, X } from 'lucide-react';
 import ResourceCard from '../components/resources/ResourceCard';
 import { useAuth } from '../contexts/AuthContext';
 
-type Resource = {
-  id: string;
-  title: string;
-  description: string;
-  url: string;
-  resourceType: 'VIDEO' | 'ARTICLE' | 'BOOK' | 'TOOL';
-  skillCategory: string;
-  likes: number;
-  createdAt: string;
-  isOwner: boolean;
-  userId: string;
-  userName: string;
-  userEmail: string;
-};
-
-type ResourceFormData = {
-  title: string;
-  description: string;
-  url: string;
-  resourceType: 'VIDEO' | 'ARTICLE' | 'BOOK' | 'TOOL';
-  skillCategory: string;
-};
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../path-to-auth-context'; // Update with your actual path
 
 const ResourceLibraryPage = () => {
   const { currentUser } = useAuth();
-  const [resources, setResources] = useState<Resource[]>([]);
+  const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedType, setSelectedType] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState<ResourceFormData>({
+  const [formData, setFormData] = useState({
     title: '',
     description: '',
     url: '',
     resourceType: 'ARTICLE',
     skillCategory: '',
   });
-  const [editingId, setEditingId] = useState<string | null>(null);
+
+  return (
+    <div>
+      {/* UI and logic goes here */}
+    </div>
+  );
+};
+
+export default ResourceLibraryPage;
+
+  const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -53,7 +43,7 @@ const ResourceLibraryPage = () => {
     try {
       setError(null);
       let url = '/api/resources';
-      
+
       if (searchQuery) {
         url = `/api/resources/search?keyword=${encodeURIComponent(searchQuery)}`;
       } else if (selectedType) {
@@ -61,33 +51,31 @@ const ResourceLibraryPage = () => {
       } else if (selectedCategory) {
         url = `/api/resources/category/${selectedCategory}`;
       }
-      
+
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${currentUser?.token}`,
+          Authorization: `Bearer ${currentUser?.token}`,
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
+          Accept: 'application/json',
+        },
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || `HTTP error! status: ${response.status}`);
       }
-      
-      // Check if the response has a content property (spring pagination)
-      const resources = Array.isArray(data) ? data : (data.content || []);
-      setResources(resources);
+
+      setResources(Array.isArray(data) ? data : data.content || []);
     } catch (error) {
       console.error('Error fetching resources:', error);
-      setError(typeof error === 'string' ? error : (error as Error).message);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!currentUser) {
       setError('You must be logged in to submit resources');
@@ -98,23 +86,21 @@ const ResourceLibraryPage = () => {
       setSubmitting(true);
       setError(null);
       const method = editingId ? 'PUT' : 'POST';
-      const url = editingId 
-        ? `/api/resources/${editingId}`
-        : '/api/resources';
+      const url = editingId ? `/api/resources/${editingId}` : '/api/resources';
 
       const response = await fetch(url, {
         method,
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${currentUser.token}`,
+          Authorization: `Bearer ${currentUser.token}`,
         },
         body: JSON.stringify({
           ...formData,
           user: {
             id: currentUser.id,
             name: currentUser.name,
-            email: currentUser.email
-          }
+            email: currentUser.email,
+          },
         }),
       });
 
@@ -123,7 +109,6 @@ const ResourceLibraryPage = () => {
         throw new Error(errorData?.message || 'Failed to save resource');
       }
 
-      // Reset form and refresh resources
       setShowForm(false);
       setFormData({
         title: '',
@@ -136,13 +121,13 @@ const ResourceLibraryPage = () => {
       await fetchResources();
     } catch (error) {
       console.error('Error saving resource:', error);
-      setError(typeof error === 'string' ? error : (error as Error).message || 'Failed to save resource. Please try again.');
+      setError(error.message || 'Failed to save resource. Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleEdit = (resource: Resource) => {
+  const handleEdit = (resource) => {
     setFormData({
       title: resource.title,
       description: resource.description,
@@ -154,23 +139,20 @@ const ResourceLibraryPage = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id) => {
     if (!currentUser) return;
-    
+
     if (window.confirm('Are you sure you want to delete this resource?')) {
       try {
         setError(null);
         const response = await fetch(`/api/resources/${id}`, {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${currentUser.token}`,
-          }
+            Authorization: `Bearer ${currentUser.token}`,
+          },
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to delete resource');
-        }
-
+        if (!response.ok) throw new Error('Failed to delete resource');
         await fetchResources();
       } catch (error) {
         console.error('Error deleting resource:', error);
@@ -179,7 +161,7 @@ const ResourceLibraryPage = () => {
     }
   };
 
-  const handleLike = async (resourceId: string) => {
+  const handleLike = async (resourceId) => {
     if (!currentUser) {
       setError('You must be logged in to like resources');
       return;
@@ -189,14 +171,11 @@ const ResourceLibraryPage = () => {
       const response = await fetch(`/api/resources/${resourceId}/like`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${currentUser.token}`,
-        }
+          Authorization: `Bearer ${currentUser.token}`,
+        },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to like resource');
-      }
-
+      if (!response.ok) throw new Error('Failed to like resource');
       await fetchResources();
     } catch (error) {
       console.error('Error liking resource:', error);
@@ -220,31 +199,26 @@ const ResourceLibraryPage = () => {
           onClick={() => setShowForm(true)}
           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          <Plus className="h-5 w-5 mr-2" />
-          Add Resource
+          <Plus className="h-5 w-5 mr-2" /> Add Resource
         </button>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600">
-          {error}
-        </div>
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600">{error}</div>
       )}
 
       <div className="flex flex-wrap gap-4 mb-6">
-        <div className="flex-1 min-w-[300px]">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              type="text"
-              placeholder="Search resources..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+        <div className="flex-1 min-w-[300px] relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <input
+            type="text"
+            placeholder="Search resources..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
-        
+
         <select
           value={selectedType}
           onChange={(e) => setSelectedType(e.target.value)}
@@ -256,7 +230,7 @@ const ResourceLibraryPage = () => {
           <option value="BOOK">Books</option>
           <option value="TOOL">Tools</option>
         </select>
-        
+
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
@@ -275,9 +249,7 @@ const ResourceLibraryPage = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl p-6 max-w-lg w-full">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">
-                {editingId ? 'Edit Resource' : 'Add New Resource'}
-              </h2>
+              <h2 className="text-xl font-semibold">{editingId ? 'Edit Resource' : 'Add New Resource'}</h2>
               <button
                 onClick={() => {
                   setShowForm(false);
@@ -298,9 +270,7 @@ const ResourceLibraryPage = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Title
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
                 <input
                   type="text"
                   required
@@ -311,9 +281,7 @@ const ResourceLibraryPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                 <textarea
                   required
                   value={formData.description}
@@ -324,9 +292,7 @@ const ResourceLibraryPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  URL
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
                 <input
                   type="url"
                   required
@@ -338,13 +304,11 @@ const ResourceLibraryPage = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Type
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
                   <select
                     required
                     value={formData.resourceType}
-                    onChange={(e) => setFormData({ ...formData, resourceType: e.target.value as any })}
+                    onChange={(e) => setFormData({ ...formData, resourceType: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="VIDEO">Video</option>
@@ -355,9 +319,7 @@ const ResourceLibraryPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Category
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                   <select
                     required
                     value={formData.skillCategory}
