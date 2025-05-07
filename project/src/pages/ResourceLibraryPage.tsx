@@ -1,21 +1,42 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Plus, X } from 'lucide-react';
 import ResourceCard from '../components/resources/ResourceCard';
 import { useAuth } from '../contexts/AuthContext';
 
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../path-to-auth-context'; // Update with your actual path
+interface ResourceType {
+  id: string;
+  title: string;
+  description: string;
+  url: string;
+  resourceType: 'ARTICLE' | 'VIDEO' | 'BOOK' | 'TOOL';
+  skillCategory: string;
+  createdAt: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  likes: number;
+  isOwner?: boolean;
+  isLiked?: boolean;
+}
+
+interface FormDataType {
+  title: string;
+  description: string;
+  url: string;
+  resourceType: 'ARTICLE' | 'VIDEO' | 'BOOK' | 'TOOL';
+  skillCategory: string;
+}
 
 const ResourceLibraryPage = () => {
   const { currentUser } = useAuth();
-  const [resources, setResources] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
+  const [resources, setResources] = useState<ResourceType[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedType, setSelectedType] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [showForm, setShowForm] = useState<boolean>(false);
+  const [formData, setFormData] = useState<FormDataType>({
     title: '',
     description: '',
     url: '',
@@ -23,17 +44,8 @@ const ResourceLibraryPage = () => {
     skillCategory: '',
   });
 
-  return (
-    <div>
-      {/* UI and logic goes here */}
-    </div>
-  );
-};
-
-export default ResourceLibraryPage;
-
-  const [editingId, setEditingId] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     fetchResources();
@@ -58,7 +70,13 @@ export default ResourceLibraryPage;
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
+      }).catch(error => {
+        throw new Error(`Network error: ${error.message}`);
       });
+
+      if (!response) {
+        throw new Error('No response from server');
+      }
 
       const data = await response.json();
 
@@ -67,57 +85,50 @@ export default ResourceLibraryPage;
       }
 
       setResources(Array.isArray(data) ? data : data.content || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching resources:', error);
-      setError(error.message);
+      setError(error.message || 'Unknown error occurred while fetching resources');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   
     if (!currentUser) {
       setError('You must be logged in to submit resources');
       return;
     }
-  
-    try {
-      setLoading(true);
-      setError(null);
-  
-      const response = await fetch('/api/resources', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...formData, userId: currentUser.id }),
-      });
-  
-      if (!response.ok) {
-        throw new Error('Failed to submit resource');
-      }
-  
-      const newResource = await response.json();
-      setResources((prev) => [...prev, newResource]);
-  
-      // Reset form
-      setFormData({
-        title: '',
-        description: '',
-        url: '',
-        resourceType: 'ARTICLE',
-        skillCategory: '',
-      });
-  
-      setShowForm(false);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+
+    // Validate form data
+    if (!formData.title.trim()) {
+      setError('Title is required');
+      return;
     }
-  };
+
+    if (!formData.description.trim()) {
+      setError('Description is required');
+      return;
+    }
+
+    if (!formData.url.trim()) {
+      setError('URL is required');
+      return;
+    }
+
+    try {
+      // Validate URL format
+      new URL(formData.url);
+    } catch (err) {
+      setError('Please enter a valid URL');
+      return;
+    }
+
+    if (!formData.skillCategory) {
+      setError('Skill category is required');
+      return;
+    }
   
     try {
       setSubmitting(true);
@@ -164,7 +175,7 @@ export default ResourceLibraryPage;
     }
   };
 
-  const handleEdit = (resource) => {
+  const handleEdit = (resource: ResourceType) => {
     setFormData({
       title: resource.title,
       description: resource.description,
@@ -176,7 +187,7 @@ export default ResourceLibraryPage;
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: string) => {
     if (!currentUser) return;
 
     if (window.confirm('Are you sure you want to delete this resource?')) {
@@ -198,7 +209,7 @@ export default ResourceLibraryPage;
     }
   };
 
-  const handleLike = async (resourceId) => {
+  const handleLike = async (resourceId: string) => {
     if (!currentUser) {
       setError('You must be logged in to like resources');
       return;
@@ -251,14 +262,14 @@ export default ResourceLibraryPage;
             type="text"
             placeholder="Search resources..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <select
           value={selectedType}
-          onChange={(e) => setSelectedType(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedType(e.target.value)}
           className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">All Types</option>
@@ -270,7 +281,7 @@ export default ResourceLibraryPage;
 
         <select
           value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedCategory(e.target.value)}
           className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">All Categories</option>
@@ -312,7 +323,7 @@ export default ResourceLibraryPage;
                   type="text"
                   required
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, title: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -322,7 +333,7 @@ export default ResourceLibraryPage;
                 <textarea
                   required
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={3}
                 />
@@ -334,7 +345,7 @@ export default ResourceLibraryPage;
                   type="url"
                   required
                   value={formData.url}
-                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, url: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -345,7 +356,7 @@ export default ResourceLibraryPage;
                   <select
                     required
                     value={formData.resourceType}
-                    onChange={(e) => setFormData({ ...formData, resourceType: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, resourceType: e.target.value as 'ARTICLE' | 'VIDEO' | 'BOOK' | 'TOOL' })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="VIDEO">Video</option>
@@ -360,7 +371,7 @@ export default ResourceLibraryPage;
                   <select
                     required
                     value={formData.skillCategory}
-                    onChange={(e) => setFormData({ ...formData, skillCategory: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, skillCategory: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select a category</option>
