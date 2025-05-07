@@ -10,6 +10,8 @@ interface ResourceType {
   url: string;
   resourceType: 'ARTICLE' | 'VIDEO' | 'BOOK' | 'TOOL';
   skillCategory: string;
+  difficultyLevel: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  tags: string[];
   createdAt: string;
   userId: string;
   userName: string;
@@ -25,6 +27,8 @@ interface FormDataType {
   url: string;
   resourceType: 'ARTICLE' | 'VIDEO' | 'BOOK' | 'TOOL';
   skillCategory: string;
+  difficultyLevel: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  tags: string[];
 }
 
 const ResourceLibraryPage = () => {
@@ -42,6 +46,8 @@ const ResourceLibraryPage = () => {
     url: '',
     resourceType: 'ARTICLE',
     skillCategory: '',
+    difficultyLevel: 'BEGINNER',
+    tags: [],
   });
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -164,6 +170,8 @@ const ResourceLibraryPage = () => {
         url: '',
         resourceType: 'ARTICLE',
         skillCategory: '',
+        difficultyLevel: 'BEGINNER',
+        tags: [],
       });
       setEditingId(null);
       await fetchResources();
@@ -182,6 +190,8 @@ const ResourceLibraryPage = () => {
       url: resource.url,
       resourceType: resource.resourceType,
       skillCategory: resource.skillCategory,
+      difficultyLevel: 'BEGINNER',
+      tags: [],
     });
     setEditingId(resource.id);
     setShowForm(true);
@@ -308,6 +318,8 @@ const ResourceLibraryPage = () => {
                     url: '',
                     resourceType: 'ARTICLE',
                     skillCategory: '',
+                    difficultyLevel: 'BEGINNER',
+                    tags: [],
                   });
                 }}
                 className="text-gray-400 hover:text-gray-600"
@@ -381,6 +393,62 @@ const ResourceLibraryPage = () => {
                     <option value="Mobile">Mobile</option>
                     <option value="UI/UX">UI/UX</option>
                   </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Difficulty Level</label>
+                  <select
+                    required
+                    value={formData.difficultyLevel}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, difficultyLevel: e.target.value as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="BEGINNER">Beginner</option>
+                    <option value="INTERMEDIATE">Intermediate</option>
+                    <option value="ADVANCED">Advanced</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+                  <div className="flex flex-wrap items-center gap-2 border border-gray-300 rounded-lg p-2 min-h-[42px]">
+                    {formData.tags.map((tag, index) => (
+                      <div key={index} className="bg-blue-100 text-blue-700 text-sm px-2 py-1 rounded-full flex items-center">
+                        {tag}
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            const newTags = [...formData.tags];
+                            newTags.splice(index, 1);
+                            setFormData({ ...formData, tags: newTags });
+                          }}
+                          className="ml-1 text-blue-500 hover:text-blue-700"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                    <input 
+                      type="text"
+                      placeholder={formData.tags.length ? "" : "Add tags..."}
+                      className="flex-1 outline-none min-w-[100px] text-sm"
+                      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                        if (e.key === 'Enter' && (e.target as HTMLInputElement).value.trim()) {
+                          e.preventDefault();
+                          const newTag = (e.target as HTMLInputElement).value.trim();
+                          if (!formData.tags.includes(newTag)) {
+                            setFormData({
+                              ...formData,
+                              tags: [...formData.tags, newTag]
+                            });
+                          }
+                          (e.target as HTMLInputElement).value = '';
+                        }
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
 
